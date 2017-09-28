@@ -92,6 +92,8 @@ namespace CcNet.Labeller
 			if (!Directory.Exists(latestPublishPath)) throw new ArgumentException(string.Format("'latest.txt' specifies a non-existent folder: '{0}'", latestPublishPath));
 
 			string label = latestPublishPath.Substring(latestPublishPath.IndexOf("1.0.0"));
+			int dashPos = label.IndexOf('-');
+			if (dashPos > 0) label = label.Substring(0, dashPos);
 
             Log.Trace("Label = {0}", label);;
             return label;
