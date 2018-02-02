@@ -1,7 +1,9 @@
 using Exortech.NetReflector;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using ThoughtWorks.CruiseControl.Core;
 using ThoughtWorks.CruiseControl.Core.Util;
 
@@ -70,6 +72,20 @@ namespace CcNet.Labeller
             result.Label = Generate(result);
         }
 
+		private struct LatestFile
+		{
+			public string Name;
+			public string Find;
+			public string Label;
+			public int Index;
+		}
+
+		private List<LatestFile> NeededFiles = new List<LatestFile> {
+			new LatestFile { Name = "latest-wms.txt", Label = "wms", Find = "1.0.0", Index = 0 },
+			new LatestFile { Name = "latest-smartui.txt", Label = "ui", Find = "-", Index = 1 },
+			new LatestFile { Name = "latest-scannerapp.txt", Label = "scan", Find = "-", Index = 1  }
+		};
+
         /// <summary>
         /// Returns the label to use for the current build.
         /// </summary>
@@ -84,27 +100,22 @@ namespace CcNet.Labeller
 			if (string.IsNullOrEmpty(PublishPath)) throw new ArgumentException("must set the <publishPath> value in the labeller configuration");
 			if (!Directory.Exists(PublishPath)) throw new ArgumentException("must set the <publishPath> value to an existing folder");
 
-			string latestWmsTxtPath = Path.Combine(PublishPath, "latest-wms.txt");
-			if (!File.Exists(latestWmsTxtPath)) throw new ArgumentException("must set the <publishPath> value to a folder that contains 'latest-wms.txt'");
+			StringBuilder label = new StringBuilder();
 
-			string latestSmartuiTxtPath = Path.Combine(PublishPath, "latest-smartui.txt");
-			if (!File.Exists(latestSmartuiTxtPath)) throw new ArgumentException("must set the <publishPath> value to a folder that contains 'latest-smartui.txt'");
+			NeededFiles.ForEach(latest => {
+				string latestFilePath = Path.Combine(PublishPath, latest.Name);
+				if (!File.Exists(latestFilePath)) throw new ArgumentException(string.Format("must set the <publishPath> value to a folder that contains '{0}'", latest.Name));
 
-			string latestWmsPath = File.ReadAllLines(latestWmsTxtPath).FirstOrDefault();
-			if (string.IsNullOrEmpty(latestWmsPath)) throw new ArgumentException("'latest-wms.txt' does not contiain any data");
-			if (!Directory.Exists(latestWmsPath)) throw new ArgumentException(string.Format("'latest-wms.txt' specifies a non-existent folder: '{0}'", latestWmsPath));
+				string latestPath = File.ReadAllLines(latestFilePath).FirstOrDefault();
+				if (string.IsNullOrEmpty(latestPath)) throw new ArgumentException(string.Format("'{0}' does not contiain any data", latest.Name));
+				if (!Directory.Exists(latestPath)) throw new ArgumentException(string.Format("'{0}' specifies a non-existent folder: '{1}'", latest.Name, latestPath));
 
-			string latestSmartuiPath = File.ReadAllLines(latestSmartuiTxtPath).FirstOrDefault();
-			if (string.IsNullOrEmpty(latestSmartuiPath)) throw new ArgumentException("'latest-smartui.txt' does not contiain any data");
-			if (!Directory.Exists(latestSmartuiPath)) throw new ArgumentException(string.Format("'latest-smartui.txt' specifies a non-existent folder: '{0}'", latestSmartuiPath));
+				if (label.Length > 0) label.Append('-');
+				label.AppendFormat("{0}:{1}", latest.Label, latestPath.Substring(latestPath.IndexOf(latest.Find)+latest.Index));
+			});
 
-			string wmsLabel = latestWmsPath.Substring(latestWmsPath.IndexOf("1.0.0"));
-			string smartuiLabel = latestSmartuiPath.Substring(latestSmartuiPath.IndexOf("-"));
-
-			string label = wmsLabel + smartuiLabel;
-
-            Log.Trace("Label = {0}", label);
-            return label;
+            Log.Trace("Label = {0}", label.ToString());
+            return label.ToString();
         }
 
         #endregion
