@@ -83,7 +83,7 @@ namespace CcNet.Labeller
 		private List<LatestFile> NeededFiles = new List<LatestFile> {
 			new LatestFile { Name = "latest-wms.txt", Label = "wms", Find = "1.0.0", Index = 0 },
 			new LatestFile { Name = "latest-smartui.txt", Label = "ui", Find = "-", Index = 1 },
-			new LatestFile { Name = "latest-scannerapp.txt", Label = "scan", Find = "-", Index = 1  }
+			new LatestFile { Name = "latest-scannerapp-master.txt", Label = "scan", Find = "-", Index = 1  }
 		};
 
         /// <summary>
@@ -108,6 +108,7 @@ namespace CcNet.Labeller
 
 				string latestPath = File.ReadAllLines(latestFilePath).FirstOrDefault();
 				if (string.IsNullOrEmpty(latestPath)) throw new ArgumentException(string.Format("'{0}' does not contiain any data", latest.Name));
+				latestPath = Path.Combine(PublishPath, latestPath);
 				if (!Directory.Exists(latestPath)) throw new ArgumentException(string.Format("'{0}' specifies a non-existent folder: '{1}'", latest.Name, latestPath));
 
 				if (label.Length > 0) label.Append('-');
