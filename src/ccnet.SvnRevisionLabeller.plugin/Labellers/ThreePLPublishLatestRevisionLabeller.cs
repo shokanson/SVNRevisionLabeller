@@ -81,8 +81,8 @@ namespace CcNet.Labeller
 		}
 
 		private List<LatestFile> NeededFiles = new List<LatestFile> {
-			new LatestFile { Name = "latest-wms.txt", Label = "wms", Find = "1.0.0", Index = 0 },
-			new LatestFile { Name = "latest-smartui.txt", Label = "ui", Find = "-", Index = 1 },
+			new LatestFile { Name = "latest-wms-trunk.txt", Label = "wms", Find = "1.0.0", Index = 0 },
+			new LatestFile { Name = "latest-smartui-master.txt", Label = "ui", Find = "-", Index = 1 },
 			new LatestFile { Name = "latest-scannerapp-master.txt", Label = "scan", Find = "-", Index = 1  }
 		};
 
